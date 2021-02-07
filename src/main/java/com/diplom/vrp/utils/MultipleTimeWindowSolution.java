@@ -98,10 +98,10 @@ public class MultipleTimeWindowSolution {
         VehicleRoutingProblemSolution bestSolution = Solutions.bestOf(solutions);
 
 
-        new VrpXMLWriter(problem, solutions).write("F:/xlam/problem-with-solution.xml");
+        new VrpXMLWriter(problem, solutions).write("problem-with-solution.xml");
         JSONObject soapDataInJsonObject = null;
         try {
-            File myObj = new File("F:/xlam/problem-with-solution.xml");
+            File myObj = new File("problem-with-solution.xml");
             Scanner myReader = new Scanner(myObj);
             String data = null;
             while (myReader.hasNextLine()) {
