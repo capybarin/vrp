@@ -13,4 +13,9 @@ public class VrpController {
     public String solve(){
         return MultipleTimeWindowSolution.solve();
     }
+
+    @PostMapping(path = "/ping", consumes = "application/json", produces = "application/json")
+    public String solve1(){
+        return "pong";
+    }
 }
