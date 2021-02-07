@@ -2,6 +2,7 @@ package com.diplom.vrp.controllers;
 
 import com.diplom.vrp.utils.MultipleTimeWindowSolution;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -15,7 +16,12 @@ public class VrpController {
     }
 
     @PostMapping(path = "/ping", consumes = "application/json", produces = "application/json")
-    public String solve1(){
+    public String postPing(){
+        return "pong";
+    }
+
+    @GetMapping(path = "/ping", consumes = "application/json", produces = "application/json")
+    public String getPing(){
         return "pong";
     }
 }
