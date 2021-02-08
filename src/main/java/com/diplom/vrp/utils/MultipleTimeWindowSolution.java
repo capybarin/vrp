@@ -57,7 +57,6 @@ public class MultipleTimeWindowSolution {
     }
 
     public static String solve(VrpModel model){
-        System.out.println(model.toString());
         model = validateModel(model);
 
         final int WEIGHT_INDEX = 0;
