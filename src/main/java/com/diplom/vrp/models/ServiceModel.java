@@ -18,6 +18,9 @@ public class ServiceModel {
         this.locationY = locationY;
     }
 
+    public ServiceModel() {
+    }
+
     public String getServiceId() {
         return serviceId;
     }

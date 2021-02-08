@@ -12,9 +12,6 @@ public class VrpModel {
     private Double costPerWaitingTime;
     private List<ServiceModel> services;
 
-    public VrpModel() {
-    }
-
     public String getVehicleType() {
         return vehicleType;
     }
