@@ -26,7 +26,7 @@ import java.util.Scanner;
 
 
 public class MultipleTimeWindowSolution {
-    
+
     private static VrpModel validateModel(VrpModel model){
         if (model.getVehicleType() == null || model.getVehicleType().equals(""))
             model.setVehicleType("Vehicle");

@@ -1,6 +1,8 @@
 package com.diplom.vrp.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.annotations.ApiModelProperty;
 
 import java.util.List;
 
@@ -389,7 +391,8 @@ class ProblemType{
 }
 
 public class OutputModel{
-    @JsonProperty("xmlns")
+    @JsonIgnore
+    @ApiModelProperty(hidden = true)
     public String getXmlns() {
         return this.xmlns; }
     public void setXmlns(String xmlns) {
@@ -408,6 +411,7 @@ public class OutputModel{
         this.solutions = solutions; }
     Solutions solutions;
     @JsonProperty("xsi:schemaLocation")
+    @JsonIgnore
     public String getXsiSchemaLocation() {
         return this.xsiSchemaLocation; }
     public void setXsiSchemaLocation(String xsiSchemaLocation) {
@@ -420,6 +424,7 @@ public class OutputModel{
         this.vehicles = vehicles; }
     Vehicles vehicles;
     @JsonProperty("xmlns:xsi")
+    @JsonIgnore
     public String getXmlnsXsi() {
         return this.xmlnsXsi; }
     public void setXmlnsXsi(String xmlnsXsi) {
