@@ -1,7 +1,8 @@
 package com.diplom.vrp.utils;
 
-import com.graphhopper.jsprit.analysis.toolbox.GraphStreamViewer;
-import com.graphhopper.jsprit.analysis.toolbox.Plotter;
+import com.diplom.vrp.exceptions.ParameterIsNullOrLessThanZeroException;
+import com.diplom.vrp.models.ServiceModel;
+import com.diplom.vrp.models.VrpModel;
 import com.graphhopper.jsprit.core.algorithm.VehicleRoutingAlgorithm;
 import com.graphhopper.jsprit.core.algorithm.box.Jsprit;
 import com.graphhopper.jsprit.core.problem.Location;
@@ -23,9 +24,41 @@ import java.io.FileNotFoundException;
 import java.util.Collection;
 import java.util.Scanner;
 
+
 public class MultipleTimeWindowSolution {
 
-    public static String solve(){
+
+    private static VrpModel validateModel(VrpModel model){
+        if (model.getVehicleType() == null || model.getVehicleType().equals(""))
+            model.setVehicleType("Vehicle");
+        if (model.getCostPerWaitingTime() == null || model.getCostPerWaitingTime() <= 0)
+            throw new ParameterIsNullOrLessThanZeroException("costPerWaitingTime");
+        if (model.getVehicleCapacity() == null || model.getVehicleCapacity() <= 0)
+            throw new ParameterIsNullOrLessThanZeroException("vehicleCapacity");
+        if (model.getVehicleStartCoordinateX() == null || model.getVehicleStartCoordinateX() <= 0)
+            throw new ParameterIsNullOrLessThanZeroException("vehicleStartCoordinateX");
+        if (model.getVehicleStartCoordinateY() == null || model.getVehicleStartCoordinateY() <= 0)
+            throw new ParameterIsNullOrLessThanZeroException("vehicleStartCoordinateY");
+        for (ServiceModel serviceModel: model.getServices()) {
+            if (serviceModel.getServiceId() == null || serviceModel.getServiceId().isEmpty())
+                throw new ParameterIsNullOrLessThanZeroException("services.serviceId");
+            if (serviceModel.getEarliest() == null || serviceModel.getEarliest() <= 0)
+                throw new ParameterIsNullOrLessThanZeroException("services.earliest");
+            if (serviceModel.getLatest() == null || serviceModel.getLatest() <= 0)
+                throw new ParameterIsNullOrLessThanZeroException("services.latest");
+            if (serviceModel.getDimensionValue() == null || serviceModel.getDimensionValue() <= 0)
+                throw new ParameterIsNullOrLessThanZeroException("services.dimensionValue");
+            if (serviceModel.getLocationX() == null || serviceModel.getLocationX() <= 0)
+                throw new ParameterIsNullOrLessThanZeroException("services.locationX");
+            if (serviceModel.getLocationY() == null || serviceModel.getLocationY() <= 0)
+                throw new ParameterIsNullOrLessThanZeroException("services.locationY");
+        }
+        return model;
+    }
+
+    public static String solve(VrpModel model){
+        System.out.println(model.toString());
+        model = validateModel(model);
 
         final int WEIGHT_INDEX = 0;
         VehicleTypeImpl.Builder vehicleTypeBuilder = VehicleTypeImpl.Builder.newInstance("Peshexod")
@@ -44,7 +77,7 @@ public class MultipleTimeWindowSolution {
          * build services at the required locations, each with a capacity-demand of 1.
          */
         Service service1 = Service.Builder.newInstance("1")
-                .addTimeWindow(50,100)
+                //.addTimeWindow(50,100)
                 .addTimeWindow(20,35)
                 .addSizeDimension(WEIGHT_INDEX, 1).setLocation(Location.newInstance(10, 0)).build();
 
@@ -54,19 +87,14 @@ public class MultipleTimeWindowSolution {
                 .setLocation(Location.newInstance(20, 0)).setServiceTime(10).build();
 
         Service service3 = Service.Builder.newInstance("3")
-                .addTimeWindow(5, 10)
                 .addTimeWindow(35, 50)
                 .addSizeDimension(WEIGHT_INDEX, 1).setLocation(Location.newInstance(30, 0)).build();
 
         Service service4 = Service.Builder.newInstance("4")
-                .addTimeWindow(5,10)
-                .addTimeWindow(20, 40)
-                .addTimeWindow(45, 80)
+                .addTimeWindow(120, 140)
                 .addSizeDimension(WEIGHT_INDEX, 1).setLocation(Location.newInstance(40, 0)).build();
 
         Service service5 = Service.Builder.newInstance("5")
-                .addTimeWindow(5,10)
-                .addTimeWindow(20, 40)
                 .addTimeWindow(60,100)
                 .addSizeDimension(WEIGHT_INDEX, 1).setLocation(Location.newInstance(20, 0)).build();
 
