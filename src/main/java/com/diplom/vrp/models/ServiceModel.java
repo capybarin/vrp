@@ -1,12 +1,20 @@
 package com.diplom.vrp.models;
 
+import io.swagger.annotations.ApiModelProperty;
+
 public class ServiceModel {
 
+    @ApiModelProperty(notes = "Service ID", required = true)
     private String serviceId;
+    @ApiModelProperty(notes = "Earliest time to arrive", required = true)
     private Double earliest;
+    @ApiModelProperty(notes = "Latest time to arrive", required = true)
     private Double latest;
+    @ApiModelProperty(notes = "Dimension value", required = true)
     private Integer dimensionValue;
+    @ApiModelProperty(notes = "X coordinate of the location", required = true)
     private Double locationX;
+    @ApiModelProperty(notes = "Y coordinate of the location", required = true)
     private Double locationY;
 
     public ServiceModel(String serviceId, double earliest, double latest, int dimensionValue, double locationX, double locationY) {

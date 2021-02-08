@@ -1,15 +1,23 @@
 package com.diplom.vrp.models;
 
+import io.swagger.annotations.ApiModelProperty;
+
 import java.util.List;
 
 
 public class VrpModel {
 
+    @ApiModelProperty(notes = "Vehicle type")
     private String vehicleType;
+    @ApiModelProperty(notes = "X coordinate of the vehicle's start location", required = true)
     private Double vehicleStartCoordinateX;
+    @ApiModelProperty(notes = "Y coordinate of the vehicle's start location", required = true)
     private Double vehicleStartCoordinateY;
+    @ApiModelProperty(notes = "Vehicle capacity", required = true)
     private Double vehicleCapacity;
+    @ApiModelProperty(notes = "Cost per waiting time", required = true)
     private Double costPerWaitingTime;
+    @ApiModelProperty(notes = "List of location to serve", required = true)
     private List<ServiceModel> services;
 
     public String getVehicleType() {
