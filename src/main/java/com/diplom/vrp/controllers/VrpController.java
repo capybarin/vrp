@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 @Api(value = "Main controller")
 public class VrpController {
 
-    @ApiOperation(value = "Solve the VRP with TW", response = MultipleTimeWindowSolution.class)
+    @ApiOperation(value = "Solve the VRP with TW")
     @ApiResponses(value = {
             @ApiResponse(code = 422, message = "`ParamName` is null or less than 0"),
             @ApiResponse(code = 200, message = "A JSON representation of optimal routes")
