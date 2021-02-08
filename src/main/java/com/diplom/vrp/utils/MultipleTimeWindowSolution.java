@@ -26,8 +26,7 @@ import java.util.Scanner;
 
 
 public class MultipleTimeWindowSolution {
-
-
+    
     private static VrpModel validateModel(VrpModel model){
         if (model.getVehicleType() == null || model.getVehicleType().equals(""))
             model.setVehicleType("Vehicle");
@@ -58,7 +57,6 @@ public class MultipleTimeWindowSolution {
 
     public static String solve(VrpModel model){
         model = validateModel(model);
-
         final int WEIGHT_INDEX = 0;
         VehicleTypeImpl.Builder vehicleTypeBuilder = VehicleTypeImpl.Builder.newInstance("Peshexod")
                 .addCapacityDimension(WEIGHT_INDEX, 10).setCostPerWaitingTime(1.);

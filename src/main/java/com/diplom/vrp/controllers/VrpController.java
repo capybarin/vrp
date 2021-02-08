@@ -1,5 +1,6 @@
 package com.diplom.vrp.controllers;
 
+import com.diplom.vrp.models.OutputModel;
 import com.diplom.vrp.models.VrpModel;
 import com.diplom.vrp.utils.MultipleTimeWindowSolution;
 import io.swagger.annotations.Api;
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @Api(value = "Main controller")
 public class VrpController {
 
-    @ApiOperation(value = "Solve the VRP with TW")
+    @ApiOperation(value = "Solve the VRP with TW", response = OutputModel.class)
     @ApiResponses(value = {
             @ApiResponse(code = 422, message = "`ParamName` is null or less than 0"),
             @ApiResponse(code = 200, message = "A JSON representation of optimal routes")
