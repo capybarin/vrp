@@ -30,24 +30,4 @@ public class VrpController {
         return MultipleTimeWindowSolution.solve(model);
     }
 
-    @ApiOperation(value = "Check if server is up")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "pong")
-    })
-    @PostMapping(path = "/ping", produces = "application/json")
-    public String postPing(){
-        logger.info("Entering POST /ping endpoint");
-        return "pong";
-    }
-
-    @ApiOperation(value = "Check if server is up")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "pong")
-    })
-    @GetMapping(path = "/ping", produces = "application/json")
-    public String getPing(){
-        logger.info("Entering GET /ping endpoint");
-        return "pong";
-    }
-
 }

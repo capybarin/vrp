@@ -26,7 +26,7 @@ public class SpringFoxConfig {
 
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder().title("VRP-Solution API")
-                .description("VRP-Solution API as a thesis")
+                .description("VRP-Solution API as a diploma work")
                 .license("Apache 2.0").contact(new Contact("Vlad Bezdsuhnyi",
                         "https://www.linkedin.com/in/vlad-bezdushnii/", "vladibzd@gmail.com"))
                 .licenseUrl("http://www.apache.org/licenses/LICENSE-2.0").version("1.0").build();
