@@ -18,6 +18,8 @@ import com.graphhopper.jsprit.core.util.Solutions;
 import com.graphhopper.jsprit.io.problem.VrpXMLWriter;
 import org.json.JSONObject;
 import org.json.XML;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -27,36 +29,63 @@ import java.util.Scanner;
 
 public class MultipleTimeWindowSolution {
 
+    private static Logger logger = LoggerFactory.getLogger(MultipleTimeWindowSolution.class);
+
     private static VrpModel validateModel(VrpModel model){
-        if (model.getVehicleType() == null || model.getVehicleType().equals(""))
+        if (model.getVehicleType() == null || model.getVehicleType().equals("")) {
+            logger.warn("Vehicle name is not provided. Setting default name");
             model.setVehicleType("Vehicle");
-        if (model.getCostPerWaitingTime() == null || model.getCostPerWaitingTime() <= 0)
+        }
+        if (model.getCostPerWaitingTime() == null || model.getCostPerWaitingTime() <= 0) {
+            logger.error("An error occurred with \"costPerWaitingTime\" parameter");
             throw new ParameterIsNullOrLessThanZeroException("costPerWaitingTime");
-        if (model.getVehicleCapacity() == null || model.getVehicleCapacity() <= 0)
+        }
+        if (model.getVehicleCapacity() == null || model.getVehicleCapacity() <= 0){
+            logger.error("An error occurred with \"vehicleCapacity\" parameter");
             throw new ParameterIsNullOrLessThanZeroException("vehicleCapacity");
-        if (model.getVehicleStartCoordinateX() == null || model.getVehicleStartCoordinateX() <= 0)
+        }
+        if (model.getVehicleStartCoordinateX() == null || model.getVehicleStartCoordinateX() <= 0) {
+            logger.error("An error occurred with \"vehicleStartCoordinateX\" parameter");
             throw new ParameterIsNullOrLessThanZeroException("vehicleStartCoordinateX");
-        if (model.getVehicleStartCoordinateY() == null || model.getVehicleStartCoordinateY() <= 0)
+        }
+        if (model.getVehicleStartCoordinateY() == null || model.getVehicleStartCoordinateY() <= 0) {
+            logger.error("An error occurred with \"vehicleStartCoordinateY\" parameter");
             throw new ParameterIsNullOrLessThanZeroException("vehicleStartCoordinateY");
+        }
+        int count = 0;
         for (ServiceModel serviceModel: model.getServices()) {
-            if (serviceModel.getServiceId() == null || serviceModel.getServiceId().isEmpty())
-                throw new ParameterIsNullOrLessThanZeroException("services.serviceId");
-            if (serviceModel.getEarliest() == null || serviceModel.getEarliest() <= 0)
-                throw new ParameterIsNullOrLessThanZeroException("services.earliest");
-            if (serviceModel.getLatest() == null || serviceModel.getLatest() <= 0)
-                throw new ParameterIsNullOrLessThanZeroException("services.latest");
-            if (serviceModel.getDimensionValue() == null || serviceModel.getDimensionValue() <= 0)
-                throw new ParameterIsNullOrLessThanZeroException("services.dimensionValue");
-            if (serviceModel.getLocationX() == null || serviceModel.getLocationX() <= 0)
-                throw new ParameterIsNullOrLessThanZeroException("services.locationX");
-            if (serviceModel.getLocationY() == null || serviceModel.getLocationY() <= 0)
-                throw new ParameterIsNullOrLessThanZeroException("services.locationY");
+            if (serviceModel.getServiceId() == null || serviceModel.getServiceId().isEmpty()) {
+                logger.error("An error occurred with \"services[" + count + "].serviceId\" parameter");
+                throw new ParameterIsNullOrLessThanZeroException("services[" + count + "].serviceId");
+            }
+            if (serviceModel.getEarliest() == null || serviceModel.getEarliest() <= 0) {
+                logger.error("An error occurred with \"services[" + count + "].earliest\" parameter");
+                throw new ParameterIsNullOrLessThanZeroException("services[" + count + "].earliest");
+            }
+            if (serviceModel.getLatest() == null || serviceModel.getLatest() <= 0) {
+                logger.error("An error occurred with \"services[" + count + "].latest\" parameter");
+                throw new ParameterIsNullOrLessThanZeroException("services[" + count + "].latest");
+            }
+            if (serviceModel.getDimensionValue() == null || serviceModel.getDimensionValue() <= 0) {
+                logger.error("An error occurred with \"services[" + count + "].dimensionValue\" parameter");
+                throw new ParameterIsNullOrLessThanZeroException("services[" + count + "].dimensionValue");
+            }
+            if (serviceModel.getLocationX() == null || serviceModel.getLocationX() <= 0) {
+                logger.error("An error occurred with \"services[" + count + "].locationX\" parameter");
+                throw new ParameterIsNullOrLessThanZeroException("services[" + count + "].locationX");
+            }
+            if (serviceModel.getLocationY() == null || serviceModel.getLocationY() <= 0) {
+                logger.error("An error occurred with \"services[" + count + "].locationY\" parameter");
+                throw new ParameterIsNullOrLessThanZeroException("services[" + count + "].locationY");
+            }
+            count++;
         }
         return model;
     }
 
     public static String solve(VrpModel model){
         model = validateModel(model);
+        logger.info("Input model: " + model.toString());
         final int WEIGHT_INDEX = 0;
         VehicleTypeImpl.Builder vehicleTypeBuilder = VehicleTypeImpl.Builder.newInstance("Peshexod")
                 .addCapacityDimension(WEIGHT_INDEX, 10).setCostPerWaitingTime(1.);
@@ -126,6 +155,7 @@ public class MultipleTimeWindowSolution {
         new VrpXMLWriter(problem, solutions).write("problem-with-solution.xml");
         JSONObject soapDataInJsonObject = null;
         try {
+            logger.info("Trying to convert XML to JSON");
             File myObj = new File("problem-with-solution.xml");
             Scanner myReader = new Scanner(myObj);
             String data = null;
@@ -134,14 +164,14 @@ public class MultipleTimeWindowSolution {
             }
             String dataWithoutNull = data.substring(4);
             soapDataInJsonObject = XML.toJSONObject(dataWithoutNull);
-            //System.out.println(soapDataInJsonObject);
             myReader.close();
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            logger.error("Converting failed. File is not found " + e);
         }
 
 
-        SolutionPrinter.print(problem, bestSolution, SolutionPrinter.Print.VERBOSE);
+        //SolutionPrinter.print(problem, bestSolution, SolutionPrinter.Print.VERBOSE);
+        logger.info("Problem is solved, returning solution...");
         return soapDataInJsonObject.toString();
         //new Plotter(problem,bestSolution).setLabel(Plotter.Label.ID).plot("F:/xlam/plot", "mine");
 

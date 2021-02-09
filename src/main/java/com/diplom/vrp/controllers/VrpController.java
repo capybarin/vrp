@@ -7,6 +7,8 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -15,6 +17,8 @@ import org.springframework.web.bind.annotation.*;
 @Api(value = "Main controller")
 public class VrpController {
 
+    private static Logger logger = LoggerFactory.getLogger(VrpController.class);
+
     @ApiOperation(value = "Solve the VRP with TW", response = OutputModel.class)
     @ApiResponses(value = {
             @ApiResponse(code = 422, message = "`ParamName` is null or less than 0"),
@@ -22,6 +26,7 @@ public class VrpController {
     })
     @PostMapping(path = "/solve", consumes = "application/json", produces = "application/json")
     public String solve(@RequestBody VrpModel model){
+        logger.info("Entering /solve endpoint");
         return MultipleTimeWindowSolution.solve(model);
     }
 
@@ -31,6 +36,7 @@ public class VrpController {
     })
     @PostMapping(path = "/ping", produces = "application/json")
     public String postPing(){
+        logger.info("Entering POST /ping endpoint");
         return "pong";
     }
 
@@ -40,6 +46,7 @@ public class VrpController {
     })
     @GetMapping(path = "/ping", produces = "application/json")
     public String getPing(){
+        logger.info("Entering GET /ping endpoint");
         return "pong";
     }
 
