@@ -18,8 +18,10 @@ public class PingController {
 
     private static Logger logger = LoggerFactory.getLogger(PingController.class);
 
+
     @ApiOperation(value = "Check if server is up")
     @ApiResponses(value = {
+            @ApiResponse(code = 500, message = "A monkey is trying to deal with this situation"),
             @ApiResponse(code = 200, message = "pong")
     })
     @PostMapping(path = "/ping", produces = "application/json")
@@ -30,6 +32,7 @@ public class PingController {
 
     @ApiOperation(value = "Check if server is up")
     @ApiResponses(value = {
+            @ApiResponse(code = 500, message = "A monkey is trying to deal with this situation"),
             @ApiResponse(code = 200, message = "pong")
     })
     @GetMapping(path = "/ping", produces = "application/json")
