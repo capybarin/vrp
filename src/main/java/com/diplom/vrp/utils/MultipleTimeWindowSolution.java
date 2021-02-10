@@ -23,8 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.Collection;
-import java.util.Scanner;
+import java.util.*;
 
 
 public class MultipleTimeWindowSolution {
@@ -87,22 +86,35 @@ public class MultipleTimeWindowSolution {
         model = validateModel(model);
         logger.info("Input model: " + model.toString());
         final int WEIGHT_INDEX = 0;
-        VehicleTypeImpl.Builder vehicleTypeBuilder = VehicleTypeImpl.Builder.newInstance("Peshexod")
-                .addCapacityDimension(WEIGHT_INDEX, 10).setCostPerWaitingTime(1.);
+        VehicleTypeImpl.Builder vehicleTypeBuilder = VehicleTypeImpl.Builder.newInstance("VRP")
+                .addCapacityDimension(WEIGHT_INDEX, model.getVehicleCapacity()).setCostPerWaitingTime(model.getCostPerWaitingTime());
         VehicleType vehicleType = vehicleTypeBuilder.build();
 
         /*
          * get a vehicle-builder and build a vehicle located at (10,10) with type "vehicleType"
          */
-        VehicleImpl.Builder vehicleBuilder = VehicleImpl.Builder.newInstance("Avtovaz");
-        vehicleBuilder.setStartLocation(Location.newInstance(1, 1));
+        VehicleImpl.Builder vehicleBuilder = VehicleImpl.Builder.newInstance(model.getVehicleType());
+        vehicleBuilder.setStartLocation(Location.newInstance(model.getVehicleStartCoordinateX(), model.getVehicleStartCoordinateY()));
         vehicleBuilder.setType(vehicleType);
         VehicleImpl vehicle = vehicleBuilder.build();
 
         /*
          * build services at the required locations, each with a capacity-demand of 1.
          */
-        Service service1 = Service.Builder.newInstance("1")
+        List<Service> serviceList = new ArrayList<>();
+        List<ServiceModel> serviceModelList = model.getServices();
+
+        for (ServiceModel serviceModel: serviceModelList) {
+            Service service = Service.Builder.newInstance(serviceModel.getServiceId())
+                    .addTimeWindow(serviceModel.getEarliest(), serviceModel.getLatest())
+                    .addSizeDimension(WEIGHT_INDEX, serviceModel.getDimensionValue())
+                    .setLocation(Location.newInstance(serviceModel.getLocationX(), serviceModel.getLocationY()))
+                    .build();
+            serviceList.add(service);
+        }
+
+
+        /*Service service1 = Service.Builder.newInstance("1")
                 //.addTimeWindow(50,100)
                 .addTimeWindow(20,35)
                 .addSizeDimension(WEIGHT_INDEX, 1).setLocation(Location.newInstance(10, 0)).build();
@@ -124,14 +136,17 @@ public class MultipleTimeWindowSolution {
                 .addTimeWindow(60,100)
                 .addSizeDimension(WEIGHT_INDEX, 1).setLocation(Location.newInstance(20, 0)).build();
 
-
+         */
         VehicleRoutingProblem.Builder vrpBuilder = VehicleRoutingProblem.Builder.newInstance();
         vrpBuilder.addVehicle(vehicle);
-        vrpBuilder.addJob(service1).addJob(service2)
+        for (Service service: serviceList) {
+            vrpBuilder.addJob(service);
+        }
+        /*vrpBuilder.addJob(service1).addJob(service2)
                 .addJob(service3)
                 .addJob(service4)
                 .addJob(service5)
-        ;
+        ;*/
         vrpBuilder.setFleetSize(VehicleRoutingProblem.FleetSize.FINITE);
         vrpBuilder.setRoutingCost(new ManhattanCosts());
         VehicleRoutingProblem problem = vrpBuilder.build();
@@ -162,7 +177,7 @@ public class MultipleTimeWindowSolution {
             while (myReader.hasNextLine()) {
                 data += myReader.nextLine();
             }
-            String dataWithoutNull = data.substring(4);
+            String dataWithoutNull = Objects.requireNonNull(data).substring(4);
             soapDataInJsonObject = XML.toJSONObject(dataWithoutNull);
             myReader.close();
         } catch (FileNotFoundException e) {
@@ -170,7 +185,7 @@ public class MultipleTimeWindowSolution {
         }
 
 
-        //SolutionPrinter.print(problem, bestSolution, SolutionPrinter.Print.VERBOSE);
+        SolutionPrinter.print(problem, bestSolution, SolutionPrinter.Print.VERBOSE);
         logger.info("Problem is solved, returning solution...");
         return soapDataInJsonObject.toString();
         //new Plotter(problem,bestSolution).setLabel(Plotter.Label.ID).plot("F:/xlam/plot", "mine");

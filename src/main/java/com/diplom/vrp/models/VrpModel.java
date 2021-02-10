@@ -14,7 +14,7 @@ public class VrpModel {
     @ApiModelProperty(notes = "Y coordinate of the vehicle's start location", required = true)
     private Double vehicleStartCoordinateY;
     @ApiModelProperty(notes = "Vehicle capacity", required = true)
-    private Double vehicleCapacity;
+    private Integer vehicleCapacity;
     @ApiModelProperty(notes = "Cost per waiting time", required = true)
     private Double costPerWaitingTime;
     @ApiModelProperty(notes = "List of location to serve", required = true)
@@ -44,11 +44,11 @@ public class VrpModel {
         this.vehicleStartCoordinateY = vehicleStartCoordinateY;
     }
 
-    public Double getVehicleCapacity() {
+    public Integer getVehicleCapacity() {
         return vehicleCapacity;
     }
 
-    public void setVehicleCapacity(Double vehicleCapacity) {
+    public void setVehicleCapacity(Integer vehicleCapacity) {
         this.vehicleCapacity = vehicleCapacity;
     }
 
