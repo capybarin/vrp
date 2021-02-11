@@ -17,7 +17,7 @@ public class VrpController {
     private static Logger logger = LoggerFactory.getLogger(VrpController.class);
 
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "model", value = "A JSON representation of vehicle's parameters and list of services data")
+            @ApiImplicitParam(name = "model", value = "A JSON representation of vehicle's parameters and services data")
     })
     @ApiOperation(value = "Solve the VRP with TW", response = OutputModel.class)
     @ApiResponses(value = {
