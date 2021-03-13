@@ -31,7 +31,6 @@ import org.json.JSONObject;
 import org.json.XML;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import scala.util.parsing.combinator.testing.Str;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -118,8 +117,8 @@ public class MultipleTimeWindowSolution {
                 logger.error("Error with VE API call. URI of the call: " + request.getURI());
             }
             if (entity != null) {
-                String result = EntityUtils.toString(entity);
-                logger.info(result);
+                //String result = EntityUtils.toString(entity);
+                //logger.info(result);
             }
         }
     }
