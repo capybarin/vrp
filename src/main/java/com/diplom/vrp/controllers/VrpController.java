@@ -28,7 +28,8 @@ public class VrpController {
     @PostMapping(path = "/solve", consumes = "application/json", produces = "application/json")
     public String solve(@RequestBody VrpModel model){
         logger.info("Entering /solve endpoint");
-        return MultipleTimeWindowSolution.solve(model);
+        MultipleTimeWindowSolution solution = new MultipleTimeWindowSolution();
+        return solution.solve(model);
     }
 
 }
