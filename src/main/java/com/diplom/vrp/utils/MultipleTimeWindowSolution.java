@@ -45,7 +45,7 @@ public class MultipleTimeWindowSolution {
     private final CloseableHttpClient httpClient = HttpClients.createDefault();
 
     private static final String BASE_VIRTUAL_EARTH_URL = "http://dev.virtualearth.net/REST/v1/Routes";
-    private final String API_KEY = "";
+    private final String API_KEY = "An_5PxQrt00CCd5u7R_FvByn0TvTTnz8JRYk_vgLSUeAlnh0o9V_99gllTlD0CaV";
 
     private VrpModel validateModel(VrpModel model){
         if (model.getVehicleType() == null || model.getVehicleType().equals("")) {
