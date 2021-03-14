@@ -1,6 +1,5 @@
 package com.diplom.vrp.utils;
 
-import com.diplom.vrp.exceptions.ParameterIsNullOrLessThanZeroException;
 import com.diplom.vrp.models.ServiceModel;
 import com.diplom.vrp.models.VrpModel;
 import com.graphhopper.jsprit.core.algorithm.VehicleRoutingAlgorithm;
@@ -46,85 +45,41 @@ public class MultipleTimeWindowSolution {
     private static final String BASE_VIRTUAL_EARTH_URL = "http://dev.virtualearth.net/REST/v1/Routes";
     private final String API_KEY = "An_5PxQrt00CCd5u7R_FvByn0TvTTnz8JRYk_vgLSUeAlnh0o9V_99gllTlD0CaV";
 
-    private VrpModel validateModel(VrpModel model){
-        if (model.getVehicleType() == null || model.getVehicleType().equals("")) {
-            logger.warn("Vehicle name is not provided. Setting default name");
-            model.setVehicleType("Vehicle");
-        }
-        if (model.getCostPerWaitingTime() == null || model.getCostPerWaitingTime() <= 0) {
-            logger.error("An error occurred with \"costPerWaitingTime\" parameter");
-            throw new ParameterIsNullOrLessThanZeroException("costPerWaitingTime");
-        }
-        if (model.getVehicleCapacity() == null || model.getVehicleCapacity() <= 0){
-            logger.error("An error occurred with \"vehicleCapacity\" parameter");
-            throw new ParameterIsNullOrLessThanZeroException("vehicleCapacity");
-        }
-        if (model.getVehicleStartCoordinateX() == null || model.getVehicleStartCoordinateX() <= 0) {
-            logger.error("An error occurred with \"vehicleStartCoordinateX\" parameter");
-            throw new ParameterIsNullOrLessThanZeroException("vehicleStartCoordinateX");
-        }
-        if (model.getVehicleStartCoordinateY() == null || model.getVehicleStartCoordinateY() <= 0) {
-            logger.error("An error occurred with \"vehicleStartCoordinateY\" parameter");
-            throw new ParameterIsNullOrLessThanZeroException("vehicleStartCoordinateY");
-        }
-        int count = 0;
-        for (ServiceModel serviceModel: model.getServices()) {
-            if (serviceModel.getServiceId() == null || serviceModel.getServiceId().isEmpty()) {
-                logger.error("An error occurred with \"services[" + count + "].serviceId\" parameter");
-                throw new ParameterIsNullOrLessThanZeroException("services[" + count + "].serviceId");
-            }
-            if (serviceModel.getEarliest() == null || serviceModel.getEarliest() <= 0) {
-                logger.error("An error occurred with \"services[" + count + "].earliest\" parameter");
-                throw new ParameterIsNullOrLessThanZeroException("services[" + count + "].earliest");
-            }
-            if (serviceModel.getLatest() == null || serviceModel.getLatest() <= 0) {
-                logger.error("An error occurred with \"services[" + count + "].latest\" parameter");
-                throw new ParameterIsNullOrLessThanZeroException("services[" + count + "].latest");
-            }
-            if (serviceModel.getDimensionValue() == null || serviceModel.getDimensionValue() <= 0) {
-                logger.error("An error occurred with \"services[" + count + "].dimensionValue\" parameter");
-                throw new ParameterIsNullOrLessThanZeroException("services[" + count + "].dimensionValue");
-            }
-            if (serviceModel.getLocationX() == null || serviceModel.getLocationX() <= 0) {
-                logger.error("An error occurred with \"services[" + count + "].locationX\" parameter");
-                throw new ParameterIsNullOrLessThanZeroException("services[" + count + "].locationX");
-            }
-            if (serviceModel.getLocationY() == null || serviceModel.getLocationY() <= 0) {
-                logger.error("An error occurred with \"services[" + count + "].locationY\" parameter");
-                throw new ParameterIsNullOrLessThanZeroException("services[" + count + "].locationY");
-            }
-            count++;
-        }
-        return model;
-    }
 
-    private void sendGetToVE(double x1, double y1, double x2, double y2) throws Exception{
+    private int sendGetToVE(double x1, double y1, double x2, double y2) throws Exception{
 
         HttpGet request = new HttpGet(BASE_VIRTUAL_EARTH_URL);
 
         List<NameValuePair> urlParameters = new ArrayList<>();
         urlParameters.add(new BasicNameValuePair("waypoint.0", x1 + "," + y1));
         urlParameters.add(new BasicNameValuePair("waypoint.1", x2 + "," + y2));
+        urlParameters.add(new BasicNameValuePair("optimize", "timeWithTraffic"));
         urlParameters.add(new BasicNameValuePair("key", API_KEY));
 
         URI uri = new URIBuilder(request.getURI()).setParameters(urlParameters).build();
         request.addHeader(HttpHeaders.ACCEPT, "application/json");
         request.setURI(uri);
         logger.info(String.valueOf(request.getURI()));
+        int travelDuration = -1;
         try (CloseableHttpResponse response = httpClient.execute(request)){
             HttpEntity entity = response.getEntity();
             if (response.getStatusLine().getStatusCode() != 200) {
                 logger.error("Error with VE API call. URI of the call: " + request.getURI());
             }
             if (entity != null) {
-                //String result = EntityUtils.toString(entity);
-                //logger.info(result);
+                String result = EntityUtils.toString(entity);
+                JSONObject jsonResult = new JSONObject(result);
+                JSONObject trafficRoute = jsonResult.getJSONArray("resourceSets").getJSONObject(0).getJSONArray("resources").getJSONObject(0);
+                travelDuration = trafficRoute.getInt("travelDurationTraffic");
+                return (travelDuration);
             }
         }
+        return travelDuration;
     }
 
     public String solve(VrpModel model){
-        model = validateModel(model);
+        ModelValidator validator = new ModelValidator();
+        model = validator.validateModel(model);
         logger.info("Input model: " + model.toString());
         final int WEIGHT_INDEX = 0; //0 means weight (e.g. 2700kg), 1 means volume (e.g. 17m^3)
         VehicleTypeImpl.Builder vehicleTypeBuilder = VehicleTypeImpl.Builder.newInstance("VRP")
@@ -181,7 +136,7 @@ public class MultipleTimeWindowSolution {
 
 
         new VrpXMLWriter(problem, solutions).write("problem-with-solution.xml");
-        JSONObject soapDataInJsonObject = null;
+        JSONObject jspritXMLOutputInJSON = null;
         try {
             logger.info("Trying to convert XML to JSON");
             File myObj = new File("problem-with-solution.xml");
@@ -191,18 +146,20 @@ public class MultipleTimeWindowSolution {
                 data += myReader.nextLine();
             }
             String dataWithoutNull = Objects.requireNonNull(data).substring(4);
-            soapDataInJsonObject = XML.toJSONObject(dataWithoutNull);
+            jspritXMLOutputInJSON = XML.toJSONObject(dataWithoutNull);
             myReader.close();
         } catch (FileNotFoundException e) {
             logger.error("Converting failed. File is not found " + e);
         }
 
-        JSONObject obj = new JSONObject(soapDataInJsonObject.toString());
+        JSONObject obj = new JSONObject(jspritXMLOutputInJSON.toString());
         JSONArray solutionArray = obj.getJSONObject("problem").getJSONObject("solutions").getJSONArray("solution");
 
+        int travelDurationWithTraffic = 0;
 
         for (int i = 0; i < solutionArray.length(); i++) {
             JSONArray tmp = solutionArray.getJSONObject(i).getJSONObject("routes").getJSONObject("route").getJSONArray("act");
+            travelDurationWithTraffic = 0;
             for (int j = 0; j < tmp.length(); j++) {
 
                 JSONObject act = tmp.getJSONObject(j);
@@ -218,7 +175,7 @@ public class MultipleTimeWindowSolution {
                     if (serviceModel.getServiceId().equals(String.valueOf(id))) {
                         if (j == 0) {
                             try {
-                                sendGetToVE(model.getVehicleStartCoordinateX(), model.getVehicleStartCoordinateY(),
+                                travelDurationWithTraffic += sendGetToVE(model.getVehicleStartCoordinateX(), model.getVehicleStartCoordinateY(),
                                         serviceModel.getLocationX(), serviceModel.getLocationY());
                             } catch (Exception e) {
                                 logger.error("Failed to send data to VE: " + e);
@@ -227,7 +184,7 @@ public class MultipleTimeWindowSolution {
                         for (ServiceModel nextModel: serviceModelList) {
                             if (nextId != -1 && nextModel.getServiceId().equals(String.valueOf(nextId))){
                                 try {
-                                    sendGetToVE(serviceModel.getLocationX(), serviceModel.getLocationY(),
+                                    travelDurationWithTraffic += sendGetToVE(serviceModel.getLocationX(), serviceModel.getLocationY(),
                                             nextModel.getLocationX(), nextModel.getLocationY());
                                 } catch (Exception e) {
                                     logger.error("Failed to send data to VE: " + e);
@@ -243,9 +200,6 @@ public class MultipleTimeWindowSolution {
 
         SolutionPrinter.print(problem, bestSolution, SolutionPrinter.Print.VERBOSE);
         logger.info("Problem is solved, returning solution...");
-        return soapDataInJsonObject.toString();
-        //new Plotter(problem,bestSolution).setLabel(Plotter.Label.ID).plot("F:/xlam/plot", "mine");
-
-        //new GraphStreamViewer(problem, bestSolution).labelWith(GraphStreamViewer.Label.ID).setRenderDelay(200).display();
+        return jspritXMLOutputInJSON.toString();
     }
 }
