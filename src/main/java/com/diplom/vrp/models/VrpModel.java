@@ -15,7 +15,7 @@ public class VrpModel {
     private Double vehicleStartCoordinateY;
     @ApiModelProperty(notes = "Vehicle capacity", required = true)
     private Integer vehicleCapacity;
-    @ApiModelProperty(notes = "Cost per waiting time", required = true)
+    @ApiModelProperty(notes = "Сost per waiting time unit, for instance € per second", required = true)
     private Double costPerWaitingTime;
     @ApiModelProperty(notes = "List of location to serve", required = true)
     private List<ServiceModel> services;
