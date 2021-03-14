@@ -118,6 +118,18 @@ class Act{
     public void setArrTime(int arrTime) {
         this.arrTime = arrTime; }
     int arrTime;
+    @JsonProperty("travelDurationTraffic")
+    public int getTravelDurationTraffic() {
+        return this.travelDurationTraffic; }
+    public void setTravelDurationTraffic(int travelDurationTraffic) {
+        this.travelDurationTraffic = travelDurationTraffic; }
+    int travelDurationTraffic;
+    @JsonProperty("timeUnit")
+    public String getTimeUnit() {
+        return this.timeUnit; }
+    public void setTimeUnit(String timeUnit) {
+        this.timeUnit = timeUnit; }
+    String timeUnit;
 }
 
 class Route{

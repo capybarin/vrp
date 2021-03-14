@@ -46,7 +46,7 @@ public class MultipleTimeWindowSolution {
     private final String API_KEY = "An_5PxQrt00CCd5u7R_FvByn0TvTTnz8JRYk_vgLSUeAlnh0o9V_99gllTlD0CaV";
 
 
-    private int sendGetToVE(double x1, double y1, double x2, double y2) throws Exception{
+    private int getTravelDurationWithTraffic(double x1, double y1, double x2, double y2) throws Exception{
 
         HttpGet request = new HttpGet(BASE_VIRTUAL_EARTH_URL);
 
@@ -175,8 +175,12 @@ public class MultipleTimeWindowSolution {
                     if (serviceModel.getServiceId().equals(String.valueOf(id))) {
                         if (j == 0) {
                             try {
-                                travelDurationWithTraffic += sendGetToVE(model.getVehicleStartCoordinateX(), model.getVehicleStartCoordinateY(),
+                                travelDurationWithTraffic = getTravelDurationWithTraffic(model.getVehicleStartCoordinateX(), model.getVehicleStartCoordinateY(),
                                         serviceModel.getLocationX(), serviceModel.getLocationY());
+                                act.put("travelDurationTraffic", travelDurationWithTraffic);
+                                nextAct.put("travelDurationTraffic", travelDurationWithTraffic);
+                                act.put("timeUnit", "seconds");
+                                nextAct.put("timeUnit", "seconds");
                             } catch (Exception e) {
                                 logger.error("Failed to send data to VE: " + e);
                             }
@@ -184,8 +188,10 @@ public class MultipleTimeWindowSolution {
                         for (ServiceModel nextModel: serviceModelList) {
                             if (nextId != -1 && nextModel.getServiceId().equals(String.valueOf(nextId))){
                                 try {
-                                    travelDurationWithTraffic += sendGetToVE(serviceModel.getLocationX(), serviceModel.getLocationY(),
+                                    travelDurationWithTraffic = getTravelDurationWithTraffic(serviceModel.getLocationX(), serviceModel.getLocationY(),
                                             nextModel.getLocationX(), nextModel.getLocationY());
+                                    nextAct.put("travelDurationTraffic", travelDurationWithTraffic);
+                                    nextAct.put("timeUnit", "seconds");
                                 } catch (Exception e) {
                                     logger.error("Failed to send data to VE: " + e);
                                 }
@@ -200,6 +206,6 @@ public class MultipleTimeWindowSolution {
 
         SolutionPrinter.print(problem, bestSolution, SolutionPrinter.Print.VERBOSE);
         logger.info("Problem is solved, returning solution...");
-        return jspritXMLOutputInJSON.toString();
+        return obj.toString();
     }
 }
