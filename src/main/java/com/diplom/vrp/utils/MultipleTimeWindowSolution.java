@@ -15,6 +15,7 @@ import com.graphhopper.jsprit.core.reporting.SolutionPrinter;
 import com.graphhopper.jsprit.core.util.ManhattanCosts;
 import com.graphhopper.jsprit.core.util.Solutions;
 import com.graphhopper.jsprit.io.problem.VrpXMLWriter;
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHeaders;
 import org.apache.http.NameValuePair;
@@ -45,6 +46,17 @@ public class MultipleTimeWindowSolution {
     private static final String BASE_VIRTUAL_EARTH_URL = "http://dev.virtualearth.net/REST/v1/Routes";
     private final String API_KEY = "An_5PxQrt00CCd5u7R_FvByn0TvTTnz8JRYk_vgLSUeAlnh0o9V_99gllTlD0CaV";
 
+    private static void wait(int ms)
+    {
+        try
+        {
+            Thread.sleep(ms);
+        }
+        catch(InterruptedException ex)
+        {
+            Thread.currentThread().interrupt();
+        }
+    }
 
     private int getTravelDurationWithTraffic(double x1, double y1, double x2, double y2) throws Exception{
 
@@ -62,6 +74,10 @@ public class MultipleTimeWindowSolution {
         logger.info(String.valueOf(request.getURI()));
         int travelDuration = -1;
         try (CloseableHttpResponse response = httpClient.execute(request)){
+            Header rateLimitHeader = response.getHeaders("X-MS-BM-WS-INFO")[0];
+            if (rateLimitHeader.getValue().equals(String.valueOf(1))){
+                wait(3000);
+            }
             HttpEntity entity = response.getEntity();
             if (response.getStatusLine().getStatusCode() != 200) {
                 logger.error("Error with VE API call. URI of the call: " + request.getURI());
