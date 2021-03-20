@@ -1,5 +1,6 @@
 package com.diplom.vrp.utils;
 
+import com.diplom.vrp.models.DepotModel;
 import com.diplom.vrp.models.ServiceModel;
 import com.diplom.vrp.models.VrpModel;
 import com.graphhopper.jsprit.core.algorithm.VehicleRoutingAlgorithm;
@@ -9,7 +10,6 @@ import com.graphhopper.jsprit.core.problem.VehicleRoutingProblem;
 import com.graphhopper.jsprit.core.problem.job.Service;
 import com.graphhopper.jsprit.core.problem.solution.VehicleRoutingProblemSolution;
 import com.graphhopper.jsprit.core.problem.vehicle.VehicleImpl;
-import com.graphhopper.jsprit.core.problem.vehicle.VehicleType;
 import com.graphhopper.jsprit.core.problem.vehicle.VehicleTypeImpl;
 import com.graphhopper.jsprit.core.reporting.SolutionPrinter;
 import com.graphhopper.jsprit.core.util.ManhattanCosts;
@@ -98,17 +98,15 @@ public class MultipleTimeWindowSolution {
         model = validator.validateModel(model);
         logger.info("Input model: " + model.toString());
         final int WEIGHT_INDEX = 0; //0 means weight (e.g. 2700kg), 1 means volume (e.g. 17m^3)
-        VehicleTypeImpl.Builder vehicleTypeBuilder = VehicleTypeImpl.Builder.newInstance("VRP")
+
+        /*VehicleTypeImpl.Builder vehicleTypeBuilder = VehicleTypeImpl.Builder.newInstance("VRP")
                 .addCapacityDimension(WEIGHT_INDEX, model.getVehicleCapacity()).setCostPerWaitingTime(model.getCostPerWaitingTime());
         VehicleType vehicleType = vehicleTypeBuilder.build();
 
-        /*
-         * get a vehicle-builder and build a vehicle located at (10,10) with type "vehicleType"
-         */
         VehicleImpl.Builder vehicleBuilder = VehicleImpl.Builder.newInstance(model.getVehicleType());
         vehicleBuilder.setStartLocation(Location.newInstance(model.getVehicleStartCoordinateX(), model.getVehicleStartCoordinateY()));
         vehicleBuilder.setType(vehicleType);
-        VehicleImpl vehicle = vehicleBuilder.build();
+        VehicleImpl vehicle = vehicleBuilder.build();*/
 
         /*
          * build services at the required locations, each with a capacity-demand of 1.
@@ -126,7 +124,18 @@ public class MultipleTimeWindowSolution {
         }
 
         VehicleRoutingProblem.Builder vrpBuilder = VehicleRoutingProblem.Builder.newInstance();
-        vrpBuilder.addVehicle(vehicle);
+        int depotCounter = 1;
+        for (DepotModel depotModel: model.getDepots()) {
+                VehicleTypeImpl vehicleType = VehicleTypeImpl.Builder.newInstance(depotCounter + "_type")
+                        .addCapacityDimension(WEIGHT_INDEX, depotModel.getVehicleCapacity())
+                        .setCostPerWaitingTime(depotModel.getCostPerWaitingTime()).build();
+                VehicleImpl vehicle = VehicleImpl.Builder.newInstance(depotModel.getVehicleType())
+                        .setStartLocation(Location.newInstance(depotModel.getVehicleStartCoordinateX(), depotModel.getVehicleStartCoordinateY()))
+                        .setType(vehicleType).build();
+                vrpBuilder.addVehicle(vehicle);
+            depotCounter++;
+        }
+
         for (Service service: serviceList) {
             vrpBuilder.addJob(service);
         }
@@ -173,52 +182,110 @@ public class MultipleTimeWindowSolution {
 
         int travelDurationWithTraffic = 0;
 
-        for (int i = 0; i < solutionArray.length(); i++) {
-            JSONArray tmp = solutionArray.getJSONObject(i).getJSONObject("routes").getJSONObject("route").getJSONArray("act");
-            travelDurationWithTraffic = 0;
-            for (int j = 0; j < tmp.length(); j++) {
+        if (model.getDepots().size() == 1) {
+            for (int i = 0; i < solutionArray.length(); i++) {
+                JSONArray tmp = solutionArray.getJSONObject(i).getJSONObject("routes").getJSONObject("route").getJSONArray("act");
+                travelDurationWithTraffic = 0;
+                for (int j = 0; j < tmp.length(); j++) {
 
-                JSONObject act = tmp.getJSONObject(j);
-                int id = act.getInt("serviceId");
+                    JSONObject act = tmp.getJSONObject(j);
+                    int id = act.getInt("serviceId");
 
-                JSONObject nextAct = null;
-                int nextId = -1;
-                if (j + 1 != tmp.length()) {
-                    nextAct = tmp.getJSONObject(j + 1);
-                    nextId = nextAct.getInt("serviceId");
-                }
-                for (ServiceModel serviceModel: serviceModelList) {
-                    if (serviceModel.getServiceId().equals(String.valueOf(id))) {
-                        if (j == 0) {
-                            try {
-                                travelDurationWithTraffic = getTravelDurationWithTraffic(model.getVehicleStartCoordinateX(), model.getVehicleStartCoordinateY(),
-                                        serviceModel.getLocationX(), serviceModel.getLocationY());
-                                act.put("travelDurationTraffic", travelDurationWithTraffic);
-                                nextAct.put("travelDurationTraffic", travelDurationWithTraffic);
-                                act.put("timeUnit", "seconds");
-                                nextAct.put("timeUnit", "seconds");
-                            } catch (Exception e) {
-                                logger.error("Failed to send data to VE: " + e);
-                            }
-                        }
-                        for (ServiceModel nextModel: serviceModelList) {
-                            if (nextId != -1 && nextModel.getServiceId().equals(String.valueOf(nextId))){
+                    JSONObject nextAct = null;
+                    int nextId = -1;
+                    if (j + 1 != tmp.length()) {
+                        nextAct = tmp.getJSONObject(j + 1);
+                        nextId = nextAct.getInt("serviceId");
+                    }
+                    for (ServiceModel serviceModel : serviceModelList) {
+                        if (serviceModel.getServiceId().equals(String.valueOf(id))) {
+                            if (j == 0) {
                                 try {
-                                    travelDurationWithTraffic = getTravelDurationWithTraffic(serviceModel.getLocationX(), serviceModel.getLocationY(),
-                                            nextModel.getLocationX(), nextModel.getLocationY());
+                                    travelDurationWithTraffic = getTravelDurationWithTraffic(model.getDepots().get(0).getVehicleStartCoordinateX(), model.getDepots().get(0).getVehicleStartCoordinateY(),
+                                            serviceModel.getLocationX(), serviceModel.getLocationY());
+                                    act.put("travelDurationTraffic", travelDurationWithTraffic);
                                     nextAct.put("travelDurationTraffic", travelDurationWithTraffic);
+                                    act.put("timeUnit", "seconds");
                                     nextAct.put("timeUnit", "seconds");
                                 } catch (Exception e) {
                                     logger.error("Failed to send data to VE: " + e);
                                 }
                             }
-                        }
+                            for (ServiceModel nextModel : serviceModelList) {
+                                if (nextId != -1 && nextModel.getServiceId().equals(String.valueOf(nextId))) {
+                                    try {
+                                        travelDurationWithTraffic = getTravelDurationWithTraffic(serviceModel.getLocationX(), serviceModel.getLocationY(),
+                                                nextModel.getLocationX(), nextModel.getLocationY());
+                                        nextAct.put("travelDurationTraffic", travelDurationWithTraffic);
+                                        nextAct.put("timeUnit", "seconds");
+                                    } catch (Exception e) {
+                                        logger.error("Failed to send data to VE: " + e);
+                                    }
+                                }
+                            }
 
-                    } else continue;
+                        } else continue;
+                    }
+                }
+            }
+        } else{
+            JSONArray routes = solutionArray.getJSONObject(0).getJSONObject("routes").getJSONArray("route");
+            for (int i = 0; i < routes.length(); i++) {
+                String vehicleId = null;
+                JSONObject route = routes.getJSONObject(i);
+
+                for (DepotModel depotModel: model.getDepots()) {
+                    if (depotModel.getVehicleType().equals(route.getString("vehicleId"))){
+                        vehicleId = depotModel.getVehicleType();
+                    }
+                }
+                JSONArray acts = route.getJSONArray("act");
+                for (int j = 0; j < acts.length(); j++) {
+                    JSONObject act = acts.getJSONObject(j);
+                    int id = act.getInt("serviceId");
+                    JSONObject nextAct = null;
+                    int nextId = -1;
+                    if (j + 1 != acts.length()) {
+                        nextAct = acts.getJSONObject(j + 1);
+                        nextId = nextAct.getInt("serviceId");
+                    }
+                    for (ServiceModel serviceModel : serviceModelList) {
+                        if (serviceModel.getServiceId().equals(String.valueOf(id))) {
+                            if (j == 0) {
+                                for (DepotModel depotModel: model.getDepots()) {
+                                    if (depotModel.getVehicleType().equals(vehicleId)) {
+                                        try {
+
+                                            travelDurationWithTraffic = getTravelDurationWithTraffic(depotModel.getVehicleStartCoordinateX(), depotModel.getVehicleStartCoordinateY(),
+                                                    serviceModel.getLocationX(), serviceModel.getLocationY());
+                                            act.put("travelDurationTraffic", travelDurationWithTraffic);
+                                            nextAct.put("travelDurationTraffic", travelDurationWithTraffic);
+                                            act.put("timeUnit", "seconds");
+                                            nextAct.put("timeUnit", "seconds");
+                                        } catch (Exception e) {
+                                            logger.error("Failed to send data to VE: " + e);
+                                        }
+                                    }
+                                }
+                            }
+                            for (ServiceModel nextModel : serviceModelList) {
+                                if (nextId != -1 && nextModel.getServiceId().equals(String.valueOf(nextId))) {
+                                    try {
+                                        travelDurationWithTraffic = getTravelDurationWithTraffic(serviceModel.getLocationX(), serviceModel.getLocationY(),
+                                                nextModel.getLocationX(), nextModel.getLocationY());
+                                        nextAct.put("travelDurationTraffic", travelDurationWithTraffic);
+                                        nextAct.put("timeUnit", "seconds");
+                                    } catch (Exception e) {
+                                        logger.error("Failed to send data to VE: " + e);
+                                    }
+                                }
+                            }
+
+                        } else continue;
+                    }
                 }
             }
         }
-
 
         SolutionPrinter.print(problem, bestSolution, SolutionPrinter.Print.VERBOSE);
         logger.info("Problem is solved, returning solution...");
