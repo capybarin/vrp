@@ -25,4 +25,13 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
         logger.error("ParameterIsNullOrLessThanZeroException " + e.getMessage());
         return new ResponseEntity<>(body, HttpStatus.UNPROCESSABLE_ENTITY);
     }
+
+    @ExceptionHandler(EmptyResponseException.class)
+    public ResponseEntity<Object> handleEmptyResponseException(EmptyResponseException e){
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("timestamp", LocalDateTime.now());
+        body.put("message", e.getMessage());
+        logger.error("ParameterIsNullOrLessThanZeroException " + e.getMessage());
+        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+    }
 }
