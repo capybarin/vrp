@@ -218,11 +218,11 @@ public class MultipleTimeWindowSolution {
                                         travelDurationWithTraffic = getTravelDurationWithTraffic(model.getDepots().get(0).getVehicleStartCoordinateX(), model.getDepots().get(0).getVehicleStartCoordinateY(),
                                                 serviceModel.getLocationX(), serviceModel.getLocationY());
                                         act.put("travelDurationTraffic", travelDurationWithTraffic);
-                                        nextAct.put("travelDurationTraffic", travelDurationWithTraffic);
                                         act.put("timeUnit", "seconds");
-                                        nextAct.put("timeUnit", "seconds");
                                         act.put("lat", serviceModel.getLocationX());
                                         act.put("lng", serviceModel.getLocationY());
+                                        nextAct.put("travelDurationTraffic", travelDurationWithTraffic);
+                                        nextAct.put("timeUnit", "seconds");
                                         nextAct.put("lat", serviceModel.getLocationX());
                                         nextAct.put("lng", serviceModel.getLocationY());
                                     } catch (Exception e) {
@@ -292,11 +292,11 @@ public class MultipleTimeWindowSolution {
                                                 travelDurationWithTraffic = getTravelDurationWithTraffic(depotModel.getVehicleStartCoordinateX(), depotModel.getVehicleStartCoordinateY(),
                                                         serviceModel.getLocationX(), serviceModel.getLocationY());
                                                 act.put("travelDurationTraffic", travelDurationWithTraffic);
-                                                nextAct.put("travelDurationTraffic", travelDurationWithTraffic);
                                                 act.put("timeUnit", "seconds");
-                                                nextAct.put("timeUnit", "seconds");
                                                 act.put("lat", serviceModel.getLocationX());
                                                 act.put("lng", serviceModel.getLocationY());
+                                                nextAct.put("travelDurationTraffic", travelDurationWithTraffic);
+                                                nextAct.put("timeUnit", "seconds");
                                                 nextAct.put("lat", serviceModel.getLocationX());
                                                 nextAct.put("lng", serviceModel.getLocationY());
                                             } catch (Exception e) {
