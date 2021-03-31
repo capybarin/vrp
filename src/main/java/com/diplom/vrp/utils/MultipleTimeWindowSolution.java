@@ -192,6 +192,8 @@ public class MultipleTimeWindowSolution {
                     JSONArray tmp = new JSONArray();
                     try{
                         tmp = solutionArray.getJSONObject(i).getJSONObject("routes").getJSONObject("route").getJSONArray("act");
+                        solutionArray.getJSONObject(i).getJSONObject("routes").getJSONObject("route").put("lat", model.getDepots().get(0).getVehicleStartCoordinateX());
+                        solutionArray.getJSONObject(i).getJSONObject("routes").getJSONObject("route").put("lng", model.getDepots().get(0).getVehicleStartCoordinateY());
                     } catch (JSONException e){
                         logger.warn("Something wrong happened while getting an array " + e);
                         tmp.put(solutionArray.getJSONObject(i).getJSONObject("routes").getJSONObject("route").getJSONObject("act"));
@@ -218,6 +220,10 @@ public class MultipleTimeWindowSolution {
                                         nextAct.put("travelDurationTraffic", travelDurationWithTraffic);
                                         act.put("timeUnit", "seconds");
                                         nextAct.put("timeUnit", "seconds");
+                                        act.put("lat", serviceModel.getLocationX());
+                                        act.put("lng", serviceModel.getLocationY());
+                                        nextAct.put("lat", serviceModel.getLocationX());
+                                        nextAct.put("lng", serviceModel.getLocationY());
                                     } catch (Exception e) {
                                         logger.error("Failed to send data to VE: " + e.getMessage());
                                         e.printStackTrace();
@@ -230,6 +236,8 @@ public class MultipleTimeWindowSolution {
                                                     nextModel.getLocationX(), nextModel.getLocationY());
                                             nextAct.put("travelDurationTraffic", travelDurationWithTraffic);
                                             nextAct.put("timeUnit", "seconds");
+                                            nextAct.put("lat", nextModel.getLocationX());
+                                            nextAct.put("lng", nextModel.getLocationY());
                                         } catch (Exception e) {
                                             logger.error("Failed to send data to VE: " + e);
                                         }
@@ -242,13 +250,15 @@ public class MultipleTimeWindowSolution {
                 }
             } else{
                 JSONArray routes = solutionArray.getJSONObject(0).getJSONObject("routes").getJSONArray("route");
+
                 for (int i = 0; i < routes.length(); i++) {
                     String vehicleId = null;
                     JSONObject route = routes.getJSONObject(i);
-
                     for (DepotModel depotModel: model.getDepots()) {
                         if (depotModel.getVehicleType().equals(route.getString("vehicleId"))){
                             vehicleId = depotModel.getVehicleType();
+                            route.put("lat", depotModel.getVehicleStartCoordinateX());
+                            route.put("lng", depotModel.getVehicleStartCoordinateY());
                         }
                     }
                     JSONArray acts = new JSONArray();
@@ -280,6 +290,10 @@ public class MultipleTimeWindowSolution {
                                                 nextAct.put("travelDurationTraffic", travelDurationWithTraffic);
                                                 act.put("timeUnit", "seconds");
                                                 nextAct.put("timeUnit", "seconds");
+                                                act.put("lat", serviceModel.getLocationX());
+                                                act.put("lng", serviceModel.getLocationY());
+                                                nextAct.put("lat", serviceModel.getLocationX());
+                                                nextAct.put("lng", serviceModel.getLocationY());
                                             } catch (Exception e) {
                                                 logger.error("Failed to send data to VE: " + e);
                                             }
@@ -293,6 +307,8 @@ public class MultipleTimeWindowSolution {
                                                     nextModel.getLocationX(), nextModel.getLocationY());
                                             nextAct.put("travelDurationTraffic", travelDurationWithTraffic);
                                             nextAct.put("timeUnit", "seconds");
+                                            nextAct.put("lat", nextModel.getLocationX());
+                                            nextAct.put("lng", nextModel.getLocationY());
                                         } catch (Exception e) {
                                             logger.error("Failed to send data to VE: " + e);
                                         }
@@ -305,7 +321,7 @@ public class MultipleTimeWindowSolution {
                 }
             }
         } else throw new EmptyResponseException("Nothing to show. None of the services could be assigned to provided vehicle(s)");
-        SolutionPrinter.print(problem, bestSolution, SolutionPrinter.Print.VERBOSE);
+        //SolutionPrinter.print(problem, bestSolution, SolutionPrinter.Print.VERBOSE);
         logger.info("Problem is solved, returning solution...");
         return obj.toString();
     }

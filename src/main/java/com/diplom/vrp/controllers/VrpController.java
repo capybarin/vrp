@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-@CrossOrigin
+@CrossOrigin(maxAge = 3600)
 @Api(value = "Main controller")
 public class VrpController {
 
