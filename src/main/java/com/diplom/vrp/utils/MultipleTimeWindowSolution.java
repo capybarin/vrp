@@ -84,13 +84,14 @@ public class MultipleTimeWindowSolution {
             HttpEntity entity = response.getEntity();
             if (response.getStatusLine().getStatusCode() != 200) {
                 logger.error("Error with VE API call. URI of the call: " + request.getURI());
+                return travelDuration;
             }
             if (entity != null) {
                 String result = EntityUtils.toString(entity);
                 JSONObject jsonResult = new JSONObject(result);
                 JSONObject trafficRoute = jsonResult.getJSONArray("resourceSets").getJSONObject(0).getJSONArray("resources").getJSONObject(0);
                 travelDuration = trafficRoute.getInt("travelDurationTraffic");
-                return (travelDuration);
+                return travelDuration;
             }
         }
         return travelDuration;
@@ -249,8 +250,13 @@ public class MultipleTimeWindowSolution {
                     }
                 }
             } else{
-                JSONArray routes = solutionArray.getJSONObject(0).getJSONObject("routes").getJSONArray("route");
-
+                JSONArray routes = new JSONArray();
+                try {
+                    routes = solutionArray.getJSONObject(0).getJSONObject("routes").getJSONArray("route");
+                } catch (JSONException e){
+                    logger.warn("Something wrong happened while getting an array " + e);
+                    routes.put(solutionArray.getJSONObject(0).getJSONObject("routes").getJSONObject("route"));
+                }
                 for (int i = 0; i < routes.length(); i++) {
                     String vehicleId = null;
                     JSONObject route = routes.getJSONObject(i);
@@ -283,7 +289,6 @@ public class MultipleTimeWindowSolution {
                                     for (DepotModel depotModel: model.getDepots()) {
                                         if (depotModel.getVehicleType().equals(vehicleId)) {
                                             try {
-
                                                 travelDurationWithTraffic = getTravelDurationWithTraffic(depotModel.getVehicleStartCoordinateX(), depotModel.getVehicleStartCoordinateY(),
                                                         serviceModel.getLocationX(), serviceModel.getLocationY());
                                                 act.put("travelDurationTraffic", travelDurationWithTraffic);
