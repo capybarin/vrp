@@ -263,8 +263,8 @@ public class MultipleTimeWindowSolution {
                     for (DepotModel depotModel: model.getDepots()) {
                         if (depotModel.getVehicleType().equals(route.getString("vehicleId"))){
                             vehicleId = depotModel.getVehicleType();
-                            route.put("lat", depotModel.getVehicleStartCoordinateX());
-                            route.put("lng", depotModel.getVehicleStartCoordinateY());
+                            route.put("lng", depotModel.getVehicleStartCoordinateX());
+                            route.put("lat", depotModel.getVehicleStartCoordinateY());
                         }
                     }
                     JSONArray acts = new JSONArray();
