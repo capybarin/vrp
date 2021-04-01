@@ -193,8 +193,8 @@ public class MultipleTimeWindowSolution {
                     JSONArray tmp = new JSONArray();
                     try{
                         tmp = solutionArray.getJSONObject(i).getJSONObject("routes").getJSONObject("route").getJSONArray("act");
-                        solutionArray.getJSONObject(i).getJSONObject("routes").getJSONObject("route").put("lat", model.getDepots().get(0).getVehicleStartCoordinateX());
-                        solutionArray.getJSONObject(i).getJSONObject("routes").getJSONObject("route").put("lng", model.getDepots().get(0).getVehicleStartCoordinateY());
+                        solutionArray.getJSONObject(i).getJSONObject("routes").getJSONObject("route").put("lng", model.getDepots().get(0).getVehicleStartCoordinateX());
+                        solutionArray.getJSONObject(i).getJSONObject("routes").getJSONObject("route").put("lat", model.getDepots().get(0).getVehicleStartCoordinateY());
                     } catch (JSONException e){
                         logger.warn("Something wrong happened while getting an array " + e);
                         tmp.put(solutionArray.getJSONObject(i).getJSONObject("routes").getJSONObject("route").getJSONObject("act"));
