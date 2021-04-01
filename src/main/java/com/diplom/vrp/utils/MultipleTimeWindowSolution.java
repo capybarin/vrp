@@ -219,12 +219,12 @@ public class MultipleTimeWindowSolution {
                                                 serviceModel.getLocationX(), serviceModel.getLocationY());
                                         act.put("travelDurationTraffic", travelDurationWithTraffic);
                                         act.put("timeUnit", "seconds");
-                                        act.put("lat", serviceModel.getLocationX());
-                                        act.put("lng", serviceModel.getLocationY());
+                                        act.put("lng", serviceModel.getLocationX());
+                                        act.put("lat", serviceModel.getLocationY());
                                         nextAct.put("travelDurationTraffic", travelDurationWithTraffic);
                                         nextAct.put("timeUnit", "seconds");
-                                        nextAct.put("lat", serviceModel.getLocationX());
-                                        nextAct.put("lng", serviceModel.getLocationY());
+                                        nextAct.put("lng", serviceModel.getLocationX());
+                                        nextAct.put("lat", serviceModel.getLocationY());
                                     } catch (Exception e) {
                                         logger.error("Failed to send data to VE: " + e.getMessage());
                                         e.printStackTrace();
@@ -237,8 +237,8 @@ public class MultipleTimeWindowSolution {
                                                     nextModel.getLocationX(), nextModel.getLocationY());
                                             nextAct.put("travelDurationTraffic", travelDurationWithTraffic);
                                             nextAct.put("timeUnit", "seconds");
-                                            nextAct.put("lat", nextModel.getLocationX());
-                                            nextAct.put("lng", nextModel.getLocationY());
+                                            nextAct.put("lng", nextModel.getLocationX());
+                                            nextAct.put("lat", nextModel.getLocationY());
                                         } catch (Exception e) {
                                             logger.error("Failed to send data to VE: " + e);
                                         }
@@ -263,8 +263,8 @@ public class MultipleTimeWindowSolution {
                     for (DepotModel depotModel: model.getDepots()) {
                         if (depotModel.getVehicleType().equals(route.getString("vehicleId"))){
                             vehicleId = depotModel.getVehicleType();
-                            route.put("lat", depotModel.getVehicleStartCoordinateX());
-                            route.put("lng", depotModel.getVehicleStartCoordinateY());
+                            route.put("lng", depotModel.getVehicleStartCoordinateX());
+                            route.put("lat", depotModel.getVehicleStartCoordinateY());
                         }
                     }
                     JSONArray acts = new JSONArray();
@@ -293,12 +293,12 @@ public class MultipleTimeWindowSolution {
                                                         serviceModel.getLocationX(), serviceModel.getLocationY());
                                                 act.put("travelDurationTraffic", travelDurationWithTraffic);
                                                 act.put("timeUnit", "seconds");
-                                                act.put("lat", serviceModel.getLocationX());
-                                                act.put("lng", serviceModel.getLocationY());
+                                                act.put("lng", serviceModel.getLocationX());
+                                                act.put("lat", serviceModel.getLocationY());
                                                 nextAct.put("travelDurationTraffic", travelDurationWithTraffic);
                                                 nextAct.put("timeUnit", "seconds");
-                                                nextAct.put("lat", serviceModel.getLocationX());
-                                                nextAct.put("lng", serviceModel.getLocationY());
+                                                nextAct.put("lng", serviceModel.getLocationX());
+                                                nextAct.put("lat", serviceModel.getLocationY());
                                             } catch (Exception e) {
                                                 logger.error("Failed to send data to VE: " + e);
                                             }
@@ -312,8 +312,8 @@ public class MultipleTimeWindowSolution {
                                                     nextModel.getLocationX(), nextModel.getLocationY());
                                             nextAct.put("travelDurationTraffic", travelDurationWithTraffic);
                                             nextAct.put("timeUnit", "seconds");
-                                            nextAct.put("lat", nextModel.getLocationX());
-                                            nextAct.put("lng", nextModel.getLocationY());
+                                            nextAct.put("lng", nextModel.getLocationX());
+                                            nextAct.put("lat", nextModel.getLocationY());
                                         } catch (Exception e) {
                                             logger.error("Failed to send data to VE: " + e);
                                         }
