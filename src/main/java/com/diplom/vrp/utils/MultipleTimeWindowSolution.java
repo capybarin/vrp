@@ -5,6 +5,7 @@ import com.diplom.vrp.exceptions.ParameterIsNullOrLessThanZeroException;
 import com.diplom.vrp.models.DepotModel;
 import com.diplom.vrp.models.ServiceModel;
 import com.diplom.vrp.models.VrpModel;
+import com.graphhopper.jsprit.analysis.toolbox.Plotter;
 import com.graphhopper.jsprit.core.algorithm.VehicleRoutingAlgorithm;
 import com.graphhopper.jsprit.core.algorithm.box.Jsprit;
 import com.graphhopper.jsprit.core.problem.Location;
@@ -327,6 +328,7 @@ public class MultipleTimeWindowSolution {
             }
         } else throw new EmptyResponseException("Nothing to show. None of the services could be assigned to provided vehicle(s)");
         //SolutionPrinter.print(problem, bestSolution, SolutionPrinter.Print.VERBOSE);
+        new Plotter(problem, bestSolution).plot("plot.png", "Solution");
         logger.info("Problem is solved, returning solution...");
         return obj.toString();
     }
